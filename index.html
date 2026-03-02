@@ -1,62 +1,99 @@
-﻿<!DOCTYPE html>
-<html>
+﻿
+<!DOCTYPE html>
+<html lang="uz">
 <head>
-    <title>Advanced Son Topish O‘yini</title>
+    <meta charset="UTF-8">
+    <title>3D Mini O‘yin</title>
     <style>
-        body { text-align: center; font-family: Arial; background: #e0f7fa; }
-        input, button { padding: 10px; font-size: 16px; margin: 5px; }
-        #javob { font-size: 18px; margin-top: 10px; }
-        #score { font-size: 20px; margin: 10px; color: green; }
+        body { margin: 0; overflow: hidden; }
+        canvas { display: block; }
     </style>
 </head>
 <body>
-
-    <h1>🎮 Advanced Son Topish O‘yini</h1>
-    <p id="levelText">Level: 1 | 1 dan 10 gacha</p>
-    <p id="score">Score: 0</p>
-
-    <input type="number" id="tahmin">
-    <br>
-    <button onclick="tekshir()">Tekshir</button>
-
-    <p id="javob"></p>
-
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
 <script>
-    let level = 1;
-    let maxSon = 10;
-    let togriSon = Math.floor(Math.random() * maxSon) + 1;
-    let urinish = 0;
-    let score = 0;
+    // Scene, Camera, Renderer
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    document.body.appendChild(renderer.domElement);
 
-    function tekshir() {
-        let foydalanuvchiSon = Number(document.getElementById("tahmin").value);
-        urinish++;
+    // Bola (player)
+    const geometry = new THREE.BoxGeometry(1,1,1);
+    const material = new THREE.MeshBasicMaterial({color: 0x00ff00});
+    const player = new THREE.Mesh(geometry, material);
+    scene.add(player);
+    player.position.y = 0.5;
 
-        if (foydalanuvchiSon === togriSon) {
-            score += 10;
-            document.getElementById("javob").innerHTML = "🎉 To‘g‘ri topding!";
-            levelUp();
-        } 
-        else if (urinish >= 3) {
-            document.getElementById("javob").innerHTML = 😢 Xato! Son: ${togriSon};
-            levelUp();
-        } 
-        else {
-            document.getElementById("javob").innerHTML = ❌ Xato! Qolgan urinish: ${3 - urinish};
+    // Tosiq
+    const obstacleGeo = new THREE.BoxGeometry(1,1,1);
+    const obstacleMat = new THREE.MeshBasicMaterial({color: 0xff0000});
+    const obstacle = new THREE.Mesh(obstacleGeo, obstacleMat);
+    scene.add(obstacle);
+    obstacle.position.z = -5;
+    obstacle.position.y = 0.5;
+
+    // Marraga yetish marker
+    const finishGeo = new THREE.BoxGeometry(1,1,1);
+    const finishMat = new THREE.MeshBasicMaterial({color: 0x0000ff});
+    const finish = new THREE.Mesh(finishGeo, finishMat);
+    scene.add(finish);
+    finish.position.z = -10;
+    finish.position.y = 0.5;
+
+    camera.position.z = 5;
+    camera.position.y = 2;
+    camera.lookAt(0,0,0);
+
+    let speed = 0.1;
+
+    // Player control (up/down for jump)
+    let jumping = false;
+    document.addEventListener('keydown', (e)=>{
+        if(e.code === "Space" && !jumping){
+            jumping = true;
+        }
+    });
+
+    let jumpHeight = 0;
+    let up = true;
+
+    function animate(){
+        requestAnimationFrame(animate);
+
+        // Jump logic
+        if(jumping){
+            if(up){
+                jumpHeight += 0.2;
+                player.position.y = 0.5 + jumpHeight;
+                if(jumpHeight >= 2){ up = false; }
+            } else {
+                jumpHeight -= 0.2;
+                player.position.y = 0.5 + jumpHeight;
+                if(jumpHeight <= 0){ 
+                    jumping = false; 
+                    up = true; 
+                    player.position.y = 0.5; 
+                }
+            }
         }
 
-        document.getElementById("score").innerHTML = "Score: " + score;
+        // Obstacle simple movement
+        obstacle.position.z += speed;
+        if(obstacle.position.z > 5){ obstacle.position.z = -5; }
+
+        // Finish check
+        if(player.position.z <= finish.position.z + 0.5 && player.position.z >= finish.position.z - 0.5){
+            alert("🎉 Level complete!");
+            player.position.z = 0;
+            finish.position.z -= 10; // next level
+        }
+
+        renderer.render(scene, camera);
     }
 
-    function levelUp() {
-        level++;
-        maxSon += 5;
-        urinish = 0;
-        togriSon = Math.floor(Math.random() * maxSon) + 1;
-        document.getElementById("levelText").innerHTML = Level: ${level} | 1 dan ${maxSon} gacha;
-        document.getElementById("tahmin").value = "";
-    }
+    animate();
 </script>
-
 </body>
 </html>
