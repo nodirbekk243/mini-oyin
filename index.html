@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Advanced Son Topish O‘yini</title>
+    <style>
+        body { text-align: center; font-family: Arial; background: #e0f7fa; }
+        input, button { padding: 10px; font-size: 16px; margin: 5px; }
+        #javob { font-size: 18px; margin-top: 10px; }
+        #score { font-size: 20px; margin: 10px; color: green; }
+    </style>
+</head>
+<body>
+
+    <h1>🎮 Advanced Son Topish O‘yini</h1>
+    <p id="levelText">Level: 1 | 1 dan 10 gacha</p>
+    <p id="score">Score: 0</p>
+
+    <input type="number" id="tahmin">
+    <br>
+    <button onclick="tekshir()">Tekshir</button>
+
+    <p id="javob"></p>
+
+<script>
+    let level = 1;
+    let maxSon = 10;
+    let togriSon = Math.floor(Math.random() * maxSon) + 1;
+    let urinish = 0;
+    let score = 0;
+
+    function tekshir() {
+        let foydalanuvchiSon = Number(document.getElementById("tahmin").value);
+        urinish++;
+
+        if (foydalanuvchiSon === togriSon) {
+            score += 10;
+            document.getElementById("javob").innerHTML = "🎉 To‘g‘ri topding!";
+            levelUp();
+        } 
+        else if (urinish >= 3) {
+            document.getElementById("javob").innerHTML = 😢 Xato! Son: ${togriSon};
+            levelUp();
+        } 
+        else {
+            document.getElementById("javob").innerHTML = ❌ Xato! Qolgan urinish: ${3 - urinish};
+        }
+
+        document.getElementById("score").innerHTML = "Score: " + score;
+    }
+
+    function levelUp() {
+        level++;
+        maxSon += 5;
+        urinish = 0;
+        togriSon = Math.floor(Math.random() * maxSon) + 1;
+        document.getElementById("levelText").innerHTML = Level: ${level} | 1 dan ${maxSon} gacha;
+        document.getElementById("tahmin").value = "";
+    }
+</script>
+
+</body>
+</html>
